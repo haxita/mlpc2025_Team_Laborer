@@ -1,0 +1,12 @@
+# --- Python
+__pycache__/
+*.py[cod]
+*.ipynb_checkpoints/
+
+# --- Data
+MLPC2025_dataset.zip
+MLPC2025_Dataset/        
+
+# --- Environments
+.env
+.venv
