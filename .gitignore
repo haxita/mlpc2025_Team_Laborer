@@ -5,7 +5,8 @@ __pycache__/
 
 # --- Data
 MLPC2025_dataset.zip
-MLPC2025_Dataset/        
+MLPC2025_Dataset/
+MLPC2025_data_exploration/        
 
 # --- Environments
 .env

@@ -1,0 +1,18 @@
+{
+  "good_keys": [
+    "melspectrogram",
+    "mfcc",
+    "mfcc_delta",
+    "contrast",
+    "centroid",
+    "bandwidth",
+    "flux",
+    "zerocrossingrate",
+    "energy"
+  ],
+  "frame_len_sec": 0.11989270386266092,
+  "n_frames_sampled": 1684753,
+  "pca1_dim": 62,
+  "pca1_var95": 0.9544001526711686,
+  "pca2_dim": 50
+}
