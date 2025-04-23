@@ -29,96 +29,80 @@
 
 \maketitle
 
-
 %%%%%%%Part 3 Audio Features Start%%%%%%%%%
 
-\section{Audio Features}   
+\section{Audio Features}
 
-\subsubsection{(a) Feature selection \& down‑projection}  % third‑level
-We inspected the 13 frame keys provided in each \texttt{.npz} file and removed
-strongly correlated or low‑value duplicates (\texttt{power}$\approx$\texttt{energy}, 
-\texttt{mfcc\_delta2}, \texttt{flatness}).  
-The nine retained groups are listed in Table~\ref{tab:feat}.  
-A StandardScaler followed by PCA keeps \textbf{95.4\,\%} variance in 62
-components (Figure~\ref{fig:pca}); a second PCA reduces the dimension to~50.
+\subsubsection{(a) Feature choice and dimension cut}
+We checked the 13 frame features in each \texttt{.npz} file. Some were almost the same or did not add much information, for example \texttt{power} is almost equal to \texttt{energy}. We also dropped \texttt{mfcc\_delta2} and \texttt{flatness}. The nine groups we kept are in Table~\ref{tab:feat}.
+
+We normalised every frame with a \texttt{StandardScaler}. Then we ran PCA. The first PCA keeps \textbf{95.4\%} of the variance with 62 components (Figure~\ref{fig:pca}). A second PCA cuts it to 50 dimensions.
 
 \begin{table}[h]
-	\caption{Retained frame feature groups (total $140$\,dims).}
-	\label{tab:feat}
-	\centering
-	\begin{tabular}{lcl}
-		\toprule
-		Group & \#dims & Reason \\ \midrule
-		Mel spectrogram            & 64 & dense spectral envelope \\
-		MFCC + $\Delta$            & 64 & static \& dynamic timbre \\
-		Spectral contrast          & 7  & noise vs.\ harmonic      \\
-		Centroid, bandwidth, flux  & 3  & brightness / variation   \\
-		Energy, ZCR                & 2  & loudness / noisiness     \\ \bottomrule
-	\end{tabular}
+    \caption{Retained frame feature groups (total $140$\,dims).}
+    \label{tab:feat}
+    \centering
+    \begin{tabular}{lcl}
+        \toprule
+        Group & \#dims & Reason \\ \midrule
+        Mel spectrogram            & 64 & dense spectral envelope \\
+        MFCC + $\Delta$            & 64 & static \& dynamic timbre \\
+        Spectral contrast          & 7  & noise vs. harmonic      \\
+        Centroid, bandwidth, flux  & 3  & brightness / variation   \\
+        Energy, ZCR                & 2  & loudness / noisiness     \\ \bottomrule
+    \end{tabular}
 \end{table}
 
 \begin{figure}[h]
-	\centering
-	% PCA cumulative variance plot
-	\includegraphics[width=.55\linewidth]{figs_tang/03_pca_cumulative_variance.png}
-	\caption{Cumulative explained variance of PCA$_1$ 
-		(\textcolor{red}{dashed}=95\%).}
-	\label{fig:pca}
+    \centering
+    % PCA cumulative variance plot
+    \includegraphics[width=.55\linewidth]{figs_tang/03_pca_cumulative_variance.png}
+    \caption{Cumulative variance curve; the red dashed line marks 95\%.}
+    \label{fig:pca}
 \end{figure}
 
-\subsubsection{(b) Fixed‑length region vectors}
-Each annotated interval $(t_\mathrm{on},t_\mathrm{off})$ and its silent
-counterpart is mapped to a 50‑D vector by averaging the projected frame
-vectors:
+\subsubsection{(b) Fixed-length vectors for each region}
+For every labelled segment $(t_\text{on}, t_\text{off})$ and the matching silent part, we make one 50‑D vector. We first project every frame through the two PCAs and then take the mean:
 \[
-\mathbf v = \frac1N \sum_{t=i_0}^{i_1-1}
-\mathrm{PCA}_2\bigl(\mathrm{PCA}_1(\mathrm{Scaler}(\mathbf f_t))\bigr).
+\mathbf v = \frac{1}{N}\sum_{t=i_0}^{i_1-1}
+\mathrm{PCA}_2(\mathrm{PCA}_1(\mathrm{Scaler}(\mathbf f_t))).
 \]
-The procedure produces \textbf{51\,966} region vectors 
-(\,35\,723 events; 16\,243 silence).
+This gives \textbf{51\,966} vectors: 35\,723 from events and 16\,243 from silence.
 
-\subsubsection{(c) Clustering \& silence analysis}
-A $k$‑Means sweep ($k=4\dots30$) yields the highest silhouette 
-($0.18$) for $k=4$ (Figure~\ref{fig:elbow}).  
-Cluster composition is summarised in Table~\ref{tab:cluster}; 
-cluster~\#2 aggregates \textbf{84\,\%} of all silence vectors, while the
-remaining silence mainly lives in cluster~\#3.
+\subsubsection{(c) Clustering and silence check}
+We tried $k$‑Means with $k=4\ldots30$. The best silhouette score (0.18) is at $k=4$ (Figure~\ref{fig:elbow}). Table~\ref{tab:cluster} shows the four clusters. Cluster~2 holds \textbf{84\%} of the silence vectors; most of the rest of the silence is in cluster~3.
 
 \begin{figure}[h]
-	\centering
-	%Elbow+Silhouette plot
-	\includegraphics[width=.55\linewidth]{figs_tang/03_elbow_silhouette.png}
-	\caption{Elbow (blue) and silhouette (red) curves for $k=4\dots30$.}
-	\label{fig:elbow}
+    \centering
+    %Elbow+Silhouette plot
+    \includegraphics[width=.55\linewidth]{figs_tang/03_elbow_silhouette.png}
+    \caption{Elbow curve (blue) and silhouette score (red) for different $k$.}
+    \label{fig:elbow}
 \end{figure}
 
 \begin{table}[h]
-	\caption{Cluster statistics for $k=4$.}
-	\label{tab:cluster}
-	\centering
-	\begin{tabular}{cccc}
-		\toprule
-		id & size & silence (\%) & perceptual label \\ \midrule
-		0 & 17\,944 & 19 & vehicle\,/\,rumble \\
-		1 & 15\,745 & 11 & sharp metallic hits \\
-		\textbf{2} & 6\,447 & \textbf{84} & near‑silence \\
-		3 & 11\,830 & 47 & diffuse ambience \\ \bottomrule
-	\end{tabular}
+    \caption{Cluster statistics for $k=4$.}
+    \label{tab:cluster}
+    \centering
+    \begin{tabular}{cccc}
+        \toprule
+        id & size & silence (\%) & perceptual label \\ \midrule
+        0 & 17\,944 & 19 & vehicle / rumble \\
+        1 & 15\,745 & 11 & sharp metallic hits \\
+        \textbf{2} & 6\,447 & \textbf{84} & near‑silence \\
+        3 & 11\,830 & 47 & diffuse ambience \\ \bottomrule
+    \end{tabular}
 \end{table}
 
-Figure~\ref{fig:pca_scatter} visualises the clusters in PCA‑2D and highlights
-the concentrated silence cloud.
-
 \begin{figure}[h]
-	\centering
-	% PCA scatter plots
-	\includegraphics[width=.45\linewidth]{figs_tang/03_pca_clusters.png}
-	\caption{Left: clusters in PCA‑2D; Right: event (orange) vs.\ silence (grey).}
-	\label{fig:pca_scatter}
+    \centering
+    % PCA scatter plots
+    \includegraphics[width=.45\linewidth]{figs_tang/03_pca_clusters.png}
+    \caption{Left: clusters in 2‑D PCA space; Right: event (orange) vs. silence (grey).}
+    \label{fig:pca_scatter}
 \end{figure}
 
-These four clusters already separate silence and three broad acoustic families,
-providing useful pseudo‑labels for downstream detector training.
+These four clusters already split silence and three big sound types. They work as rough labels for training the detector later.
 
 %%%%%%%Part 3 Audio Features Finish%%%%%%%%%
 

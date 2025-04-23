@@ -11,3 +11,10 @@ MLPC2025_data_exploration/
 # --- Environments
 .env
 .venv
+
+# --- macOS
+.DS_Store
+
+# --- Windows
+Thumbs.db
+desktop.ini

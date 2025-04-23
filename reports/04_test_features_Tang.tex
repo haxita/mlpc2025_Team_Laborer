@@ -34,19 +34,13 @@
 
 \section{Text Features}
 
-\subsubsection{(a) Text‑embedding clustering}   % third‑level  
-We load 35\,826 sentence‑transformer embeddings (1\,024 dims, unit‑norm).  
-A PCA that retains 90\,\% variance compresses them to 100 dimensions;  
-K‑Means is then swept over $k=5\dots20$.  
-Figure~\ref{fig:text_silhouette} shows a local silhouette peak at 
-\mbox{$k=15$} ($s=0.071$), so we adopt \textbf{$k=15$}.  
-t‑SNE projections for $k=11$ and 15 (Figure~\ref{fig:text_tsne}) confirm that  
-$k=15$ better separates colour islands while keeping clusters interpretable.
+\subsubsection{(a) Picking $k$ for text embeddings}
+We load 35\,826 sentence‑transformer embeddings (1\,024‑D, unit norm). A PCA that keeps 90\,\% of the variance shrinks them to 100 dimensions. We then run $k$‑Means for $k=5\ldots20$. The silhouette curve in Figure~\ref{fig:text_silhouette} reaches a local maximum at $k=15$ ($s=0.071$), so we choose \textbf{$k=15$}. The t‑SNE plots in Figure~\ref{fig:text_tsne} show cleaner colour islands for $k=15$ than for $k=11$.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=.55\linewidth]{figs_tang/04_silhouette_k.png}
-  \caption{Silhouette over $k=5\dots20$ (text embeddings).}
+  \caption{Silhouette over $k=5\ldots20$ (text embeddings).}
   \label{fig:text_silhouette}
 \end{figure}
 
@@ -54,14 +48,12 @@ $k=15$ better separates colour islands while keeping clusters interpretable.
   \centering
   \includegraphics[width=.45\linewidth]{figs_tang/04_text_cluster11.png}\hfill
   \includegraphics[width=.45\linewidth]{figs_tang/04_text_cluster15.png}
-  \caption{t‑SNE colour‑map of text clusters for $k=11$ (left) and $k=15$ (right).}
+  \caption{t‑SNE colour map of text clusters for $k=11$ (left) and $k=15$ (right).}
   \label{fig:text_tsne}
 \end{figure}
 
-Listening to five random samples per cluster yields the themes in
-Table~\ref{tab:text_themes}; they cover bells (\texttt{C0}), buzzing/sirens
-(\texttt{C1}), dog‑/bird‑calls (\texttt{C2}), water/rain (\texttt{C3}) \emph{etc.},
-validating the semantic coherence.
+\subsubsection{(b) Themes of the 15 clusters}
+We listen to five random clips in every cluster. Table~\ref{tab:text_themes} lists the main sound we hear: bells (\texttt{C0}), sirens or buzzing (\texttt{C1}), dogs or birds (\texttt{C2}), water or rain (\texttt{C3}), etc. This quick check tells us the clusters are semantically meaningful.
 
 \begin{table}[h]
   \caption{Manual auditory label of the 15 text clusters.}
@@ -90,14 +82,8 @@ validating the semantic coherence.
   \end{tabular}
 \end{table}
 
-\subsubsection{(b) Dog \& Cat labelling function}
-A hybrid labelling function—regex dictionary
-\texttt{\small(bark$\mid$woof$\mid$puppy), (meow$\mid$purr$\mid$kitten)} plus
-cosine\,>\,0.35 to class prototypes—identifies \textbf{1\,483 dog} and
-\textbf{731 cat} annotations.  
-Entropy over the 15 clusters is 0.073 (dog) / 0.073 (cat), i.e.\ $>$80\,\% of
-each class falls into only two clusters.
-Figure~\ref{fig:dogcat_tsne} visualises the tight grouping in t‑SNE space.
+\subsubsection{(c) Dog \& cat tagging rule}
+A simple rule—regex \texttt{(bark$|$woof$|$puppy)} or \texttt{(meow$|$purr$|$kitten)} plus cosine similarity $>0.35$ to class prototypes—finds \textbf{1\,483 dog} and \textbf{731 cat} tags. The entropy for both is 0.073, meaning over 80\,\% of each class sits in only two clusters. Figure~\ref{fig:dogcat_tsne} shows how tightly these points group in t‑SNE space.
 
 \begin{figure}[h]
   \centering
@@ -107,32 +93,17 @@ Figure~\ref{fig:dogcat_tsne} visualises the tight grouping in t‑SNE space.
   \label{fig:dogcat_tsne}
 \end{figure}
 
-\subsubsection{(c) Alignment between text and audio clusters}
-The 51\,966 audio region vectors were clustered with $k=4$
-(cf.\ Section~3c).  
-After aligning on \texttt{(filename, onset, offset)} rounded to 1\,ms,
-35\,552 event pairs remain; four extremely small text clusters ($<0.3\%$
-each, duration $<$1 frame) have no audio match and appear as zero rows.
-The cross‑tab in Figure~\ref{fig:text_audio_heat} shows clear correspondences
-(bells $\rightarrow$ audio 0, speech $\rightarrow$ 1, animals $\rightarrow$ 2,
-water/ambience $\rightarrow$ 3).  
-Normalised Mutual Information between the 15 text clusters and the 4 audio
-clusters is \textbf{NMI = 0.28}.
+\subsubsection{(d) Linking text and audio clusters}
+The 51\,966 audio region vectors were clustered into four groups (see Section~3c). After matching by \texttt{(filename, onset, offset)} rounded to 1 ms we get 35\,552 event pairs. Four very small text clusters ($<0.3$\,\% each) have no audio match, so their rows are zero in Figure~\ref{fig:text_audio_heat}. The heatmap shows clear links—bells map to audio 0, speech to 1, animal calls to 2, water/ambience to 3. The Normalised Mutual Information is \textbf{NMI = 0.28}.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=.7\linewidth]{figs_tang/04_text_audio_heatmap_k15.png}
-  \caption{Cross‑tabulation of text clusters ($k=15$) vs.\ audio clusters
-           ($k=4$). Rows 11–14 are empty because those text clusters
-           contain only sub‑frame annotations without audio features.}
+  \caption{Cross‑tabulation of text clusters ($k=15$) vs. audio clusters ($k=4$). Rows 11–14 are empty because those text clusters contain only sub‑frame annotations without audio features.}
   \label{fig:text_audio_heat}
 \end{figure}
 
-\paragraph{Take‑aways.}
-Text embeddings cluster into 15 semantically coherent groups; the dog/cat
-labelling function verifies tight intracluster cohesion.  
-Cross‑modal NMI 0.28 indicates a moderate but meaningful alignment between
-text and audio spaces, sufficient to transfer weak labels across modalities.
+\paragraph{Take‑aways.} Text embeddings form 15 clear semantic clusters. The dog/cat rule confirms tight grouping. An NMI of 0.28 suggests a moderate but useful link between text and audio spaces, enough to transfer weak labels between them.
 
 %%%%%%% Part 4 Text Features Finish %%%%%%%%%
 
