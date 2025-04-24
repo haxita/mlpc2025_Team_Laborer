@@ -36,7 +36,7 @@
 \subsubsection{(a) Feature choice and dimension cut}
 We checked the 13 frame features in each \texttt{.npz} file. Some were almost the same or did not add much information, for example \texttt{power} is almost equal to \texttt{energy}. We also dropped \texttt{mfcc\_delta2} and \texttt{flatness}. The nine groups we kept are in Table~\ref{tab:feat}.
 
-We normalised every frame with a \texttt{StandardScaler}. Then we ran PCA. The first PCA keeps \textbf{95.4\%} of the variance with 62 components (Figure~\ref{fig:pca}). A second PCA cuts it to 50 dimensions.
+We normalised every frame with a \texttt{StandardScaler}. Then we ran PCA. The first PCA keeps \textbf{95.4\%} of the variance with 62 components. A second PCA cuts it to 50 dimensions.
 
 \begin{table}[h]
     \caption{Retained frame feature groups (total $140$\,dims).}
@@ -53,32 +53,14 @@ We normalised every frame with a \texttt{StandardScaler}. Then we ran PCA. The f
     \end{tabular}
 \end{table}
 
-\begin{figure}[h]
-    \centering
-    % PCA cumulative variance plot
-    \includegraphics[width=.55\linewidth]{figs_tang/03_pca_cumulative_variance.png}
-    \caption{Cumulative variance curve; the red dashed line marks 95\%.}
-    \label{fig:pca}
-\end{figure}
 
 \subsubsection{(b) Fixed-length vectors for each region}
-For every labelled segment $(t_\text{on}, t_\text{off})$ and the matching silent part, we make one 50‑D vector. We first project every frame through the two PCAs and then take the mean:
-\[
-\mathbf v = \frac{1}{N}\sum_{t=i_0}^{i_1-1}
-\mathrm{PCA}_2(\mathrm{PCA}_1(\mathrm{Scaler}(\mathbf f_t))).
-\]
+For every labelled segment $(t_\text{on}, t_\text{off})$ and the matching silent part, we make one 50‑D vector. We first project every frame through the two PCAs and then take the mean.
+
 This gives \textbf{51\,966} vectors: 35\,723 from events and 16\,243 from silence.
 
 \subsubsection{(c) Clustering and silence check}
-We tried $k$‑Means with $k=4\ldots30$. The best silhouette score (0.18) is at $k=4$ (Figure~\ref{fig:elbow}). Table~\ref{tab:cluster} shows the four clusters. Cluster~2 holds \textbf{84\%} of the silence vectors; most of the rest of the silence is in cluster~3.
-
-\begin{figure}[h]
-    \centering
-    %Elbow+Silhouette plot
-    \includegraphics[width=.55\linewidth]{figs_tang/03_elbow_silhouette.png}
-    \caption{Elbow curve (blue) and silhouette score (red) for different $k$.}
-    \label{fig:elbow}
-\end{figure}
+We tried $k$‑Means with $k=4\ldots30$. The best silhouette score (0.18) is at $k=4$. Table~\ref{tab:cluster} shows the four clusters. Cluster~2 holds \textbf{84\%} of the silence vectors; most of the rest of the silence is in cluster~3.
 
 \begin{table}[h]
     \caption{Cluster statistics for $k=4$.}
