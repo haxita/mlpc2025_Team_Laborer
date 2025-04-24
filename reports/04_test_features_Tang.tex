@@ -35,21 +35,13 @@
 \section{Text Features}
 
 \subsubsection{(a) Picking $k$ for text embeddings}
-We load 35\,826 sentence‑transformer embeddings (1\,024‑D, unit norm). A PCA that keeps 90\,\% of the variance shrinks them to 100 dimensions. We then run $k$‑Means for $k=5\ldots20$. The silhouette curve in Figure~\ref{fig:text_silhouette} reaches a local maximum at $k=15$ ($s=0.071$), so we choose \textbf{$k=15$}. The t‑SNE plots in Figure~\ref{fig:text_tsne} show cleaner colour islands for $k=15$ than for $k=11$.
+We load 35\,826 sentence‑transformer embeddings (1\,024‑D, unit norm). A PCA that keeps 90\,\% of the variance shrinks them to 100 dimensions. We then run $k$‑Means for $k=5\ldots20$. The silhouette curve in Figure~\ref{fig:text_silhouette} reaches a local maximum at $k=15$ ($s=0.071$), so we choose \textbf{$k=15$}.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=.55\linewidth]{figs_tang/04_silhouette_k.png}
+  \includegraphics[width=.40\linewidth]{figs_tang/04_silhouette_k.png}
   \caption{Silhouette over $k=5\ldots20$ (text embeddings).}
   \label{fig:text_silhouette}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=.45\linewidth]{figs_tang/04_text_cluster11.png}\hfill
-  \includegraphics[width=.45\linewidth]{figs_tang/04_text_cluster15.png}
-  \caption{t‑SNE colour map of text clusters for $k=11$ (left) and $k=15$ (right).}
-  \label{fig:text_tsne}
 \end{figure}
 
 \subsubsection{(b) Themes of the 15 clusters}
@@ -94,14 +86,7 @@ A simple rule—regex \texttt{(bark$|$woof$|$puppy)} or \texttt{(meow$|$purr$|$k
 \end{figure}
 
 \subsubsection{(d) Linking text and audio clusters}
-The 51\,966 audio region vectors were clustered into four groups (see Section~3c). After matching by \texttt{(filename, onset, offset)} rounded to 1 ms we get 35\,552 event pairs. Four very small text clusters ($<0.3$\,\% each) have no audio match, so their rows are zero in Figure~\ref{fig:text_audio_heat}. The heatmap shows clear links—bells map to audio 0, speech to 1, animal calls to 2, water/ambience to 3. The Normalised Mutual Information is \textbf{NMI = 0.28}.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=.7\linewidth]{figs_tang/04_text_audio_heatmap_k15.png}
-  \caption{Cross‑tabulation of text clusters ($k=15$) vs. audio clusters ($k=4$). Rows 11–14 are empty because those text clusters contain only sub‑frame annotations without audio features.}
-  \label{fig:text_audio_heat}
-\end{figure}
+The 51\,966 audio region vectors were clustered into four groups (see Section~3c). After matching by \texttt{(filename, onset, offset)} rounded to 1 ms we get 35\,552 event pairs. Four very small text clusters ($<0.3$\,\% each) have no audio match, so their rows are zero. The heatmap shows clear links—bells map to audio 0, speech to 1, animal calls to 2, water/ambience to 3. The Normalised Mutual Information is \textbf{NMI = 0.28}.
 
 \paragraph{Take‑aways.} Text embeddings form 15 clear semantic clusters. The dog/cat rule confirms tight grouping. An NMI of 0.28 suggests a moderate but useful link between text and audio spaces, enough to transfer weak labels between them.
 
