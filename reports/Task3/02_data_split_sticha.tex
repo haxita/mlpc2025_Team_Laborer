@@ -1,0 +1,40 @@
+\documentclass{article}
+
+
+
+
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{graphicx}       % addtional package for show figures
+
+
+\begin{document}
+
+
+\maketitle
+
+%%%%%%%Part 2 Data Split%%%%%%%%%
+
+\section{Data Split}
+
+\subsubsection{Split Description}
+To ensure reliable model training, meaningful hyperparameter tuning, and accurate evaluation, we divided our dataset into three distinct subsets: \textbf{a training set, a validation set, and a test set}. The training set, comprising 60\% of the data, was used to train the model. The validation set, which accounted for 20\%, served to tune the model’s hyperparameters and select the best-performing classifier. Lastly, the remaining 20\% formed the test set, which was used only once to estimate the final performance. 
+
+\subsubsection{Information Leakage}
+Information leakage occurs when information from outside the training dataset contributes to the training of the model. In our case, such leakage would occur from splitting the data at the frame level. Since consecutive frames are extracted from the same audio file, they are most likely very similar, splitting at the frame level could lead to frames from the same original recording being present in both the training and test sets. This would allow the model to learn patterns specific to individual recordings, resulting in inflated performance metrics and poor generalization. To avoid this, we performed the \textbf{data split at the file level}, ensuring that all frames from a specific audio file are assigned exclusively to a single dataset. As a result, the test data truly represent unseen input.  
+
+\subsubsection{Obtaining Unbiased Performance Estimates}
+To ensure an unbiased final performance estimate, we used the test set only for estimating the model’s performance. The training set was used solely for model fitting, while the validation set was used exclusively for tuning hyperparameters and model selection. This procedure prevents the model from being optimized for the test data and the final performance estimate reflect the model’s true ability to generalize on new, unseen data.
+
+%%%%%%%Part 2 Data Split%%%%%%%%%
+
+
+\end{document}
