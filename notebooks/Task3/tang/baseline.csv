@@ -1,0 +1,4 @@
+model,f1_macro,precision_macro,recall_macro
+Dummy_Majority,0.0,0.0,0.0
+Dummy_Random_mean,0.0,0.0,0.0
+LogReg_OVR,0.18858788118891195,0.11196756998721928,0.6699475029976835
