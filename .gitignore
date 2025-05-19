@@ -20,3 +20,5 @@ MLPC2025_classification/
 # --- Windows
 Thumbs.db
 desktop.ini
+
+.npy
