@@ -1,0 +1,93 @@
+\documentclass{article}
+
+\usepackage[final]{neurips_2023}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+
+\title{task 3 and 4}
+\author{Dmitriy Troitskiy}
+\date{May 2025}
+
+\begin{document}
+
+\maketitle
+
+\section*{Task 3: Audio Features}
+
+\subsection*{(a) Selected Subset of Audio Features and Selection Process}
+
+\textbf{Selected Features:}
+\begin{itemize}
+    \item \textbf{MFCC}: Mel-Frequency Cepstral Coefficients to capture timbral properties.
+    \item \textbf{Embeddings}: Learned representations, possibly from a pretrained model.
+    \item \textbf{Spectral Contrast}: Captures differences between spectral peaks and valleys.
+    \item \textbf{Spectral Flatness}: Measures how noise-like a sound is.
+    \item \textbf{Spectral Bandwidth}: Quantifies frequency spread.
+    \item \textbf{Mel-Spectrogram}: A perceptually scaled time-frequency representation.
+\end{itemize}
+
+\textbf{Selection Process:}
+\begin{itemize}
+    \item \textbf{Feature Diversity}: Combined complementary features covering timbral, spectral, and perceptual aspects of audio.
+    \item \textbf{Empirical Evaluation}: Features were loaded from precomputed `.npz` files and concatenated before dimensionality reduction.
+    \item \textbf{Dimensionality Handling}: PCA was used to reduce feature size while preserving 95\% of the variance, which also helps prevent overfitting.
+\end{itemize}
+
+\subsection*{(b) Preprocessing Techniques Applied to Audio Features}
+
+\textbf{Preprocessing Steps:}
+\begin{itemize}
+    \item \textbf{Standardization}: All features were normalized using \texttt{StandardScaler} to have zero mean and unit variance.
+    \item \textbf{Dimensionality Reduction}: Principal Component Analysis (PCA) was applied to compress features while retaining 95\% of total variance.
+    \item \textbf{Batch Transformation}: The same pipeline was fitted on the training set and then applied to validation and test sets to ensure consistency.
+\end{itemize}
+
+
+\vspace{1em}
+
+\section*{Task 4: Evaluation}
+
+\subsection*{(a) Evaluation Criterion for Comparing Hyperparameter Settings and Algorithms}
+
+\textbf{Chosen Criterion:}
+\begin{itemize}
+    \item \textbf{F1-Score (Macro-Averaged)}: This metric was used to evaluate and compare model performance. It calculates the F1-score for each class independently and then averages them, ensuring that rare and frequent classes are treated equally.
+\end{itemize}
+
+\textbf{Rationale:}
+\begin{itemize}
+    \item \textbf{Class Imbalance}: Many of the sound events occur infrequently, so metrics like accuracy would not reflect true performance.
+    \item \textbf{Balanced Trade-off}: Macro-F1 balances both false positives and false negatives, which is important for multi-label tasks.
+    \item \textbf{Cross-Validation Integration}: The F1-score was directly used as the scoring function during hyperparameter tuning via \texttt{GridSearchCV}.
+\end{itemize}
+
+\subsection*{(b) Baseline and Best Possible Performance}
+
+\textbf{Baseline Performance:}
+\begin{itemize}
+    \item \textbf{Definition}: The baseline is defined by a naive model that always predicts the absence of events (all-zero labels).
+    \item \textbf{Computation}: Based on the mean positive rate of the validation set across all classes, the baseline accuracy is approximately \( 1 - \text{mean positive rate} \).
+    \item \textbf{Purpose}: This baseline reflects how well a model could perform by simply exploiting class imbalance — without learning meaningful patterns.
+\end{itemize}
+
+\textbf{Best Possible Performance:}
+\begin{itemize}
+    \item \textbf{Definition}: The best performance corresponds to the highest macro F1-score obtained through model selection and tuning.
+    \item \textbf{Estimation}: This was achieved via \texttt{GridSearchCV} and cross-validation, using various models and hyperparameters. While perfect classification is unlikely due to label noise and overlapping events, the best model significantly outperforms the baseline.
+\end{itemize}
+
+
+
+\end{document}
