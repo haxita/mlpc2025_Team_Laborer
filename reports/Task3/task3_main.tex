@@ -61,7 +61,7 @@
 %%%%%%%Part 1 Labeling Function%%%%%%%%%
 \section{Labeling Function}
 \subsection{Label Accuracy}
-I verified the alignment between the labeling functions and the top 20 most popular keywords. As it turns out, they performed quite okay, with about 97\% of the pairs matching. In the remaining few cases of mismatch, the labels were still generally consistent with the category. The sounds mostly matched with the given timeframes, somewhat fitting into the mismatched ones, as I gave them a listen too. 
+The labeling function was evaluated on a manual subset of five classes (\textit{Speech}, \textit{Dog Bark}, \textit{Siren}, \textit{Rain}, \textit{Car}). We first extracted the top 20 high-frequency keywords for each class and then checked whether those keywords appeared in the free-text annotations. Using this method, the labeling function achieved an accuracy of approximately 97.2\%. The small number of mismatches were actually valid events described by lower-frequency keywords, which explains why they were not detected by our simple keyword check. So the labeling function is quite accurate.
 
 \subsection{Audio Features}
 To identify which features were the most pertinent for classification discrimination, I used ANOVA F-scores. Top features included MFCC, embeddings, contrast, flatness, and bandwidth. These features seem to capture elements like pitch and texture of sounds, which come in handy for recognizing sound types. 
@@ -76,8 +76,9 @@ The higher-ranking features I gave are such sounds within a class tend to group 
 \section{Data Split}
 
 \subsection{Split Description}
-To ensure reliable model training, meaningful hyperparameter tuning, and accurate evaluation, we divided our dataset into three distinct subsets: \textbf{a training set, a validation set, and a test set}. The training set, comprising 60\% of the data, was used to train the model. The validation set, which accounted for 20\%, served to tune the model’s hyperparameters and select the best-performing classifier. Lastly, the remaining 20\% formed the test set, which was used only once to estimate the final performance. 
+To ensure reliable model training, meaningful hyperparameter tuning, and accurate evaluation, we divided our dataset into three distinct subsets: \textbf{a training set, a validation set, and a test set}. The training set, comprising 70\% of the data, was used to train the model. The validation set, which accounted for 15\%, served to tune the model’s hyperparameters and select the best-performing classifier. Lastly, the remaining 15\% formed the test set, which was used only once to estimate the final performance.
 
+ 
 \subsection{Information Leakage}
 Information leakage occurs when information from outside the training dataset contributes to the training of the model. In our case, such leakage would occur from splitting the data at the frame level. Since consecutive frames are extracted from the same audio file, they are most likely very similar, splitting at the frame level could lead to frames from the same original recording being present in both the training and test sets. This would allow the model to learn patterns specific to individual recordings, resulting in inflated performance metrics and poor generalization. To avoid this, we performed the \textbf{data split at the file level}, ensuring that all frames from a specific audio file are assigned exclusively to a single dataset. As a result, the test data truly represent unseen input.  
 
@@ -145,7 +146,7 @@ To ensure an unbiased final performance estimate, we used the test set only for 
 \textbf{Best Possible Performance:}
 \begin{itemize}
     \item \textbf{Definition}: The best performance corresponds to the highest macro F1-score obtained through model selection and tuning.
-    \item \textbf{Estimation}: This was achieved via \texttt{GridSearchCV} and cross-validation, using various models and hyperparameters. While perfect classification is unlikely due to label noise and overlapping events, the best model significantly outperforms the baseline.
+    \item \textbf{Estimation}: This was achieved via \texttt{GridSearchCV} and cross-validation, using various models and hyperparameters. Perfect classification is unlikely due to label noise, overlapping events and rare classes samples.
 \end{itemize}
 
 \section{Experiments}
@@ -225,7 +226,7 @@ It appears that the model tends to ignore those sounds that are quieter when the
 There is much confusion here between speech and motor sounds. The Motor sounds may have similar waveforms to speech. Background noise could be the reason for this. The model perceives indistinct or low-pitched speech as sounds of engines or motor-sounds.
 
 \subsection{Conclusion}
-The classifier has problems with overlapping events and similar acoustic classes. Improvement might be possible with some postprocessing, e.g., averaging predictions over time or filtering out frames with low confidence.
+The classifier has problems with overlapping events and similar acoustic classes. Improvement might be possible with some postprocessing, e.g., averaging predictions over time or filtering out frames with low confidence. The model also hiddered because of some classes have very few samples. Which causing not enough pattern learning examples.
 
 
 
