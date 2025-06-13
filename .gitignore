@@ -10,7 +10,8 @@ MLPC2025_data_exploration/
 MLPC2025_classification.zip
 MLPC2025_classification/
 MLPC2025_test.zip
-MLPC2025_test/        
+MLPC2025_test/
+MLPC2025_challenge/        
 
 # --- Environments
 .env
