@@ -1,0 +1,129 @@
+\section{Investigating Improvement Strategies}
+
+We tested three diverse strategies to improve our frame‐level logistic regression baseline (cost 54.07): 
+
+\begin{itemize}
+  \item \textbf{Grid search on regularization} (Section~3.1)
+  \item \textbf{Gaussian noise augmentation} (Section~3.2)
+  \item \textbf{Per‐class threshold tuning} (Section~3.3)
+\end{itemize}
+
+\subsection{3.1 Hyperparameter Tuning (Grid Search on C)}
+\label{sec:grid}
+\paragraph{Idea \& Hypothesis.}
+The inverse regularization strength $C$ controls the bias–variance trade‐off in logistic regression. We hypothesised that a smaller $C$ might reduce overfitting and thus lower the segment‐level cost.
+
+\paragraph{Experiment.}
+We trained one model per class for $C \in \{0.01,0.1,1,10,100\}$ and computed the total cost on our validation split:
+\begin{table}
+  \centering
+  \caption{Validation cost vs.\ regularization parameter $C$.}
+  \label{tab:grid}
+  \begin{tabular}{cc}
+    \toprule
+    $C$ & Total cost per minute \\
+    \midrule
+    0.01 & 50.3383 \\
+    0.10 & 51.0511 \\
+    1.00 & 52.4959 \\
+    10.00 & 52.7044 \\
+    100.0 & 52.5129 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Outcome.}
+The best cost occurred at $C=0.01$, lowering the total cost to 50.3383 (\textit{6.8\% drop}).
+
+\subsection{3.2 Data Augmentation (Gaussian Noise)}
+\label{sec:augment}
+\paragraph{Idea \& Hypothesis.}
+We injected Gaussian noise into each frame ($\sigma=0.02$, 3 copies) to diversify training data. We expected increased robustness and lower cost.
+
+\paragraph{Experiment \& Results.}
+We retrained the model at $C=0.01$ with noise augmentation and compared:
+\begin{table}
+  \centering
+  \caption{Validation cost with and without Gaussian noise augmentation.}
+  \label{tab:aug}
+  \begin{tabular}{lcc}
+    \toprule
+    Model & Total cost \\
+    \midrule
+    LR ($C=0.01$) & 50.3383 \\
+    LR + Noise Augmentation & 50.5702 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Outcome.}
+Augmentation slightly increased cost to 50.5702, indicating simple frame‐wise noise did not simulate real acoustic variability effectively.
+
+\subsection{3.3 Cost‐Specific Tuning (Per‐Class Thresholds)}
+\label{sec:threshold}
+\paragraph{Idea \& Hypothesis.}
+A fixed probability threshold 0.5 may not be optimal for all classes. We searched thresholds in [0.1,0.9] (step 0.05) per class to minimise its segment‐level cost.
+
+\paragraph{Experiment.}
+For each class we chose the threshold that gave the lowest validation cost:
+
+\begin{table}
+  \centering
+  \caption{Per‐class best thresholds and costs.}
+  \label{tab:thr}
+  \begin{tabular}{lcc}
+    \toprule
+    Class & Best Thr. & Cost \\
+    \midrule
+    Speech       & 0.50 & 6.1279  \\
+    Shout        & 0.90 & 6.1577  \\
+    Chainsaw     & 0.25 & 3.0320  \\
+    Jackhammer   & 0.90 & 3.5172  \\
+    Lawn Mower   & 0.65 & 4.1427  \\
+    Power Drill  & 0.85 & 8.7387  \\
+    Dog Bark     & 0.70 & 1.6682  \\
+    Rooster Crow & 0.90 & 0.1851  \\
+    Horn Honk    & 0.90 & 6.0066  \\
+    Siren        & 0.90 & 5.2215  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Applying these thresholds yielded:
+
+\begin{table}
+  \centering
+  \caption{Final validation performance with tuned thresholds.}
+  \label{tab:final}
+  \begin{tabular}{lcccc}
+    \toprule
+    Class & BAcc & Precision & Recall & F1 \\
+    \midrule
+    Speech       & 0.899 & 0.653 & 0.850 & 0.739 \\
+    Shout        & 0.737 & 0.313 & 0.490 & 0.382 \\
+    Chainsaw     & 0.802 & 0.673 & 0.607 & 0.638 \\
+    Jackhammer   & 0.749 & 0.556 & 0.501 & 0.527 \\
+    Lawn Mower   & 0.772 & 0.418 & 0.550 & 0.475 \\
+    Power Drill  & 0.734 & 0.337 & 0.484 & 0.397 \\
+    Dog Bark     & 0.897 & 0.634 & 0.806 & 0.710 \\
+    Rooster Crow & 0.837 & 0.773 & 0.675 & 0.721 \\
+    Horn Honk    & 0.753 & 0.304 & 0.518 & 0.383 \\
+    Siren        & 0.836 & 0.748 & 0.676 & 0.710 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The new total cost per minute is \textbf{44.7977}, a further \textit{11.1\% reduction} from the best grid‐search model.
+
+\subsection{Cost Comparison Figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{tang/cost_comparison.png}
+  \caption{Total cost per minute for each strategy: baseline, grid search, augmentation, and threshold tuning.}
+  \label{fig:cost_compare}
+\end{figure}
+
+\paragraph{Summary.}
+Grid search on $C$ reduced cost by 6.8\%; noise augmentation alone did not help; per‐class threshold tuning achieved the largest improvement, reducing cost by 17.2\% from baseline.
+
